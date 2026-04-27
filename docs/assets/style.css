@@ -1,0 +1,145 @@
+:root {
+  --blue: #123b63;
+  --light-blue: #eaf3fb;
+  --orange: #f29f05;
+  --grey: #667085;
+  --border: #d9e2ec;
+  --bg: #f7f9fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: #1f2937;
+}
+
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 18px 56px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  color: var(--blue);
+  font-size: 34px;
+  margin: 8px 0;
+}
+
+.hero p {
+  color: var(--grey);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px !important;
+  color: var(--orange) !important;
+  font-weight: 700;
+}
+
+.score-card {
+  background: var(--blue);
+  color: white;
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 12px 28px rgba(18, 59, 99, .18);
+}
+
+.score-card span, .score-card small {
+  opacity: .86;
+}
+
+.score-card strong {
+  font-size: 64px;
+  line-height: 1;
+  margin: 8px 0;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 20px rgba(16, 24, 40, .04);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: var(--blue);
+  font-size: 21px;
+}
+
+.hint {
+  color: var(--grey);
+  margin-top: -8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.questions {
+  display: grid;
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+  color: #344054;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 13px;
+  font: inherit;
+  background: white;
+}
+
+textarea { resize: vertical; }
+
+.primary {
+  background: var(--blue);
+  color: white;
+  border: 0;
+  border-radius: 14px;
+  padding: 15px 22px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:hover { filter: brightness(1.05); }
+
+.status {
+  font-weight: 700;
+  color: var(--blue);
+}
+
+@media (max-width: 760px) {
+  .hero, .grid {
+    grid-template-columns: 1fr;
+  }
+}
