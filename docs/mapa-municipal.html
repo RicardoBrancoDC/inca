@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa Municipal INCA</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    body { background:#f6f8fb; }
+    .dashboard-container { max-width:1480px; margin:0 auto; padding:30px 22px 56px; }
+    .topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:18px; }
+    .topbar h1 { color:var(--blue); margin:6px 0 8px; font-size:38px; line-height:1.05; }
+    .topbar p { color:var(--grey); font-size:17px; margin:0; line-height:1.42; }
+    .navlinks { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .navlinks a { text-decoration:none; border:1px solid var(--border); color:var(--blue); background:white; padding:10px 13px; border-radius:12px; font-weight:700; box-shadow:0 6px 14px rgba(16,24,40,.04); }
+    .controls { display:grid; grid-template-columns:170px 250px 1fr; gap:12px; margin:16px 0; background:white; border:1px solid var(--border); border-radius:18px; padding:14px; box-shadow:0 8px 20px rgba(16,24,40,.04); }
+    .controls label { font-size:13px; color:#344054; }
+    .controls input, .controls select { padding:10px 12px; border-radius:12px; }
+    .kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:14px; }
+    .kpi { background:white; border:1px solid var(--border); border-radius:18px; padding:16px; box-shadow:0 8px 18px rgba(16,24,40,.04); }
+    .kpi span { color:#344054; font-size:13px; font-weight:800; }
+    .kpi strong { display:block; color:var(--blue); font-size:32px; line-height:1; margin-top:8px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:16px; }
+    .map-card,.side-card,.table-card { background:white; border:1px solid var(--border); border-radius:20px; box-shadow:0 12px 28px rgba(16,24,40,.06); overflow:hidden; }
+    .map-head { padding:18px 20px 12px; display:flex; justify-content:space-between; gap:14px; align-items:flex-start; }
+    .map-head h2,.side-card h2,.table-card h2 { margin:0; color:var(--blue); font-size:22px; }
+    .map-head p { margin:5px 0 0; color:var(--grey); line-height:1.4; }
+    #map { height:690px; width:100%; background:#eef4f8; }
+    .legend { min-width:230px; background:#fff; border:1px solid var(--border); border-radius:14px; padding:12px; box-shadow:0 8px 18px rgba(16,24,40,.07); font-size:13px; }
+    .legend-title { font-weight:900; color:var(--blue); margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em; }
+    .legend-row { display:grid; grid-template-columns:24px 1fr; gap:9px; align-items:center; margin:7px 0; color:#344054; }
+    .swatch { width:24px; height:17px; border-radius:5px; border:1px solid rgba(0,0,0,.10); }
+    .side-stack { display:grid; gap:16px; }
+    .side-card { padding:18px; }
+    .insight { display:grid; grid-template-columns:54px 1fr; gap:14px; align-items:center; padding:14px 0; border-bottom:1px solid #edf1f5; }
+    .insight:last-child { border-bottom:0; }
+    .icon-bubble { width:54px; height:54px; border-radius:50%; background:#f0f4f8; display:flex; align-items:center; justify-content:center; font-size:25px; }
+    .insight strong { display:block; color:var(--blue); font-size:13px; text-transform:uppercase; margin-bottom:4px; }
+    .insight p { margin:0; color:var(--grey); font-size:14px; line-height:1.35; }
+    .status { margin-top:10px; color:var(--blue); font-weight:800; line-height:1.35; }
+    .bars { display:grid; gap:12px; margin-top:14px; }
+    .bar-row { display:grid; grid-template-columns:145px 1fr 42px; gap:10px; align-items:center; color:#344054; font-size:13px; }
+    .bar-bg { height:13px; border-radius:999px; background:#edf2f7; overflow:hidden; }
+    .bar-fill { height:100%; border-radius:999px; }
+    .table-card { margin-top:16px; padding:18px; }
+    .table-wrap { max-height:360px; overflow:auto; border:1px solid var(--border); border-radius:14px; margin-top:12px; }
+    table { width:100%; border-collapse:collapse; background:white; }
+    th,td { border-bottom:1px solid var(--border); padding:10px; text-align:left; font-size:14px; }
+    th { background:var(--light-blue); color:var(--blue); position:sticky; top:0; }
+    .leaflet-popup-content-wrapper { border-radius:14px; }
+    .popup-title { color:var(--blue); font-weight:900; font-size:15px; margin-bottom:6px; }
+    .popup-line { color:#344054; margin:3px 0; }
+    @media (max-width:1150px) { .layout,.topbar { display:block; } .controls { grid-template-columns:1fr; } .kpis { grid-template-columns:1fr 1fr; } #map { height:570px; } .navlinks { justify-content:flex-start; margin-top:12px; } }
+  </style>
+</head>
+<body>
+  <main class="dashboard-container">
+    <section class="topbar">
+      <div>
+        <p class="eyebrow">Painel territorial com malha municipal</p>
+        <h1>Mapa Municipal de Capacidade de Alertas (INCA)</h1>
+        <p>Visualização por município, usando o código IBGE salvo no formulário e a malha municipal carregada pela API pública do IBGE.</p>
+      </div>
+      <div class="navlinks">
+        <a href="index.html">Formulário</a>
+        <a href="dashboard.html">Painel geral</a>
+      </div>
+    </section>
+
+    <section class="controls">
+      <label>UF da malha municipal
+        <select id="ufSelect"></select>
+      </label>
+      <label>Classificação
+        <select id="classSelect">
+          <option value="">Todas</option>
+          <option value="Alta capacidade">Alta capacidade</option>
+          <option value="Capacidade moderada">Capacidade moderada</option>
+          <option value="Capacidade limitada">Capacidade limitada</option>
+          <option value="Baixa capacidade">Baixa capacidade</option>
+          <option value="Sem resposta">Sem resposta</option>
+        </select>
+      </label>
+      <label>Buscar município
+        <input id="searchInput" placeholder="Digite parte do nome do município">
+      </label>
+    </section>
+
+    <section class="kpis">
+      <div class="kpi"><span>Municípios na UF</span><strong id="kpiMun">0</strong></div>
+      <div class="kpi"><span>Com resposta</span><strong id="kpiResp">0</strong></div>
+      <div class="kpi"><span>Média INCA</span><strong id="kpiMedia">0</strong></div>
+      <div class="kpi"><span>Alta capacidade</span><strong id="kpiAlta">0</strong></div>
+      <div class="kpi"><span>Sem resposta</span><strong id="kpiSem">0</strong></div>
+    </section>
+
+    <section class="layout">
+      <div class="map-card">
+        <div class="map-head">
+          <div>
+            <h2>Municípios classificados pelo INCA</h2>
+            <p>Os polígonos são coloridos pela classificação final. Municípios sem avaliação aparecem em cinza muito claro.</p>
+            <div id="status" class="status">Carregando dados...</div>
+          </div>
+          <div class="legend">
+            <div class="legend-title">Classificação do índice</div>
+            <div class="legend-row"><span class="swatch" style="background:#003f73"></span><span>Alta capacidade, 80 a 100</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#5b9bd5"></span><span>Capacidade moderada, 60 a 79</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#bdd7ee"></span><span>Capacidade limitada, 40 a 59</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#d9d9d9"></span><span>Baixa capacidade, 0 a 39</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#f2f4f7"></span><span>Sem resposta</span></div>
+          </div>
+        </div>
+        <div id="map"></div>
+      </div>
+
+      <div class="side-stack">
+        <div class="side-card">
+          <h2>Leitura estratégica</h2>
+          <div class="insight"><div class="icon-bubble">🗺️</div><div><strong>Visão territorial real</strong><p>Permite visualizar a capacidade municipal usando limites carregados da API de malhas do IBGE.</p></div></div>
+          <div class="insight"><div class="icon-bubble">🎯</div><div><strong>Priorização</strong><p>Municípios sem resposta ou com baixa pontuação ficam evidentes para capacitação.</p></div></div>
+          <div class="insight"><div class="icon-bubble">📊</div><div><strong>Gestão contínua</strong><p>O painel reflete cada nova avaliação consolidada no repositório.</p></div></div>
+        </div>
+
+        <div class="side-card">
+          <h2>Distribuição na UF selecionada</h2>
+          <div id="bars" class="bars"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-card">
+      <h2>Ranking da UF selecionada</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Município</th><th>Código IBGE</th><th>Nota</th><th>Classificação</th></tr></thead>
+          <tbody id="ranking"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const UF_OPTIONS = [["AC","Acre"],["AL","Alagoas"],["AP","Amapá"],["AM","Amazonas"],["BA","Bahia"],["CE","Ceará"],["DF","Distrito Federal"],["ES","Espírito Santo"],["GO","Goiás"],["MA","Maranhão"],["MT","Mato Grosso"],["MS","Mato Grosso do Sul"],["MG","Minas Gerais"],["PA","Pará"],["PB","Paraíba"],["PR","Paraná"],["PE","Pernambuco"],["PI","Piauí"],["RJ","Rio de Janeiro"],["RN","Rio Grande do Norte"],["RS","Rio Grande do Sul"],["RO","Rondônia"],["RR","Roraima"],["SC","Santa Catarina"],["SP","São Paulo"],["SE","Sergipe"],["TO","Tocantins"]];
+    const COLORS = {"Alta capacidade":"#003f73","Capacidade moderada":"#5b9bd5","Capacidade limitada":"#bdd7ee","Baixa capacidade":"#d9d9d9","Sem resposta":"#f2f4f7"};
+    const STATE_ID = {AC:12,AL:27,AP:16,AM:13,BA:29,CE:23,DF:53,ES:32,GO:52,MA:21,MT:51,MS:50,MG:31,PA:15,PB:25,PR:41,PE:26,PI:22,RJ:33,RN:24,RS:43,RO:11,RR:14,SC:42,SP:35,SE:28,TO:17};
+
+    let allRows = [], rowsByCode = new Map(), currentGeoJson = null, map, geoLayer;
+    const ufSelect = document.getElementById("ufSelect");
+    const classSelect = document.getElementById("classSelect");
+    const searchInput = document.getElementById("searchInput");
+    const statusEl = document.getElementById("status");
+
+    function normalizeCode(value) {
+      if (value === undefined || value === null) return "";
+      return String(value).replace(/\D/g, "").padStart(7, "0").slice(-7);
+    }
+
+    function getFeatureCode(feature) {
+      const p = feature.properties || {};
+      const candidates = [p.codarea,p.CD_MUN,p.CD_MUNICI,p.CD_GEOCMU,p.GEOCODIGO,p.id,p.ID,p.codigo,p.codigo_ibge,p.CODIGO,p.geocodigo];
+      for (const c of candidates) {
+        const code = normalizeCode(c);
+        if (code.length === 7) return code;
+      }
+      return "";
+    }
+
+    function getFeatureName(feature) {
+      const p = feature.properties || {};
+      return p.nome || p.name || p.NM_MUN || p.NM_MUNICIP || p.NM_MUNICIPIO || p.nomearea || p.NOME || "Município";
+    }
+
+    function colorFor(cls) { return COLORS[cls] || COLORS["Sem resposta"]; }
+
+    function styleFeature(feature) {
+      const row = rowsByCode.get(getFeatureCode(feature));
+      const cls = row?.pontuacao?.classificacao || "Sem resposta";
+      return { color:"#ffffff", weight: row ? 0.7 : 0.45, fillColor:colorFor(cls), fillOpacity: row ? 0.82 : 0.68 };
+    }
+
+    function matchFilter(feature) {
+      const code = getFeatureCode(feature);
+      const row = rowsByCode.get(code);
+      const cls = row?.pontuacao?.classificacao || "Sem resposta";
+      const selectedClass = classSelect.value;
+      const search = searchInput.value.trim().toLowerCase();
+      const name = (row?.identificacao?.municipio || getFeatureName(feature)).toLowerCase();
+      if (selectedClass && cls !== selectedClass) return false;
+      if (search && !name.includes(search)) return false;
+      return true;
+    }
+
+    function initUFOptions() {
+      ufSelect.innerHTML = UF_OPTIONS.map(([sigla,nome]) => `<option value="${sigla}">${sigla} - ${nome}</option>`).join("");
+    }
+
+    async function loadConsolidado() {
+      const res = await fetch("data/consolidado.json?ts=" + Date.now());
+      if (!res.ok) throw new Error("Não foi possível carregar docs/data/consolidado.json");
+      const data = await res.json();
+      allRows = data.respostas || [];
+    }
+
+    function rebuildIndex() {
+      rowsByCode = new Map();
+      for (const row of allRows) {
+        if (row.identificacao?.uf !== ufSelect.value) continue;
+        const code = normalizeCode(row.identificacao?.codigo_ibge);
+        if (!code) continue;
+        const prev = rowsByCode.get(code);
+        const t = new Date(row.enviado_em || 0).getTime();
+        const pt = new Date(prev?.enviado_em || 0).getTime();
+        if (!prev || t >= pt) rowsByCode.set(code, row);
+      }
+    }
+
+    async function loadMunicipalMesh(uf) {
+      statusEl.textContent = `Carregando malha municipal de ${uf} pelo IBGE...`;
+      const stateId = STATE_ID[uf] || uf;
+      const url = `https://servicodados.ibge.gov.br/api/v3/malhas/estados/${stateId}?formato=application/vnd.geo+json&qualidade=minima&intrarregiao=municipio`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Não foi possível carregar a malha municipal do IBGE.");
+      const geojson = await response.json();
+      if (!geojson.features || !geojson.features.length) throw new Error("A resposta do IBGE não retornou feições municipais.");
+      currentGeoJson = geojson;
+    }
+
+    function initMap() {
+      map = L.map("map", { zoomControl:true, scrollWheelZoom:true }).setView([-14.2,-51.9], 4);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:"&copy; OpenStreetMap | Malha municipal: IBGE" }).addTo(map);
+    }
+
+    function renderMap() {
+      if (geoLayer) geoLayer.remove();
+      const filtered = { type:"FeatureCollection", features:(currentGeoJson.features || []).filter(matchFilter) };
+      geoLayer = L.geoJSON(filtered, {
+        style: styleFeature,
+        onEachFeature: (feature, layer) => {
+          const code = getFeatureCode(feature);
+          const row = rowsByCode.get(code);
+          const name = row?.identificacao?.municipio || getFeatureName(feature);
+          const cls = row?.pontuacao?.classificacao || "Sem resposta";
+          const nota = row?.pontuacao?.total;
+          layer.bindPopup(`<div class="popup-title">${name} - ${ufSelect.value}</div>
+            <div class="popup-line"><b>Código IBGE:</b> ${code || "-"}</div>
+            <div class="popup-line"><b>Nota INCA:</b> ${nota ?? "Sem avaliação"}</div>
+            <div class="popup-line"><b>Classificação:</b> ${cls}</div>
+            ${row ? `<div class="popup-line"><b>Monitoramento:</b> ${row.pontuacao?.monitoramento ?? "-"}</div>
+            <div class="popup-line"><b>Emissão:</b> ${row.pontuacao?.emissao ?? "-"}</div>
+            <div class="popup-line"><b>Comunicação:</b> ${row.pontuacao?.comunicacao ?? "-"}</div>
+            <div class="popup-line"><b>Preparação:</b> ${row.pontuacao?.preparacao ?? "-"}</div>` : ""}`);
+        }
+      }).addTo(map);
+      if (geoLayer.getBounds().isValid()) map.fitBounds(geoLayer.getBounds(), { padding:[24,24] });
+    }
+
+    function numberBR(v) { return Number(v || 0).toLocaleString("pt-BR"); }
+
+    function renderStats() {
+      const features = currentGeoJson.features || [];
+      const filteredFeatures = features.filter(matchFilter);
+      const filteredCodes = new Set(filteredFeatures.map(getFeatureCode));
+      const rows = [...rowsByCode.values()].filter(r => filteredCodes.has(normalizeCode(r.identificacao?.codigo_ibge)));
+      const media = rows.length ? Math.round(rows.reduce((s,r)=>s+(r.pontuacao?.total || 0),0)/rows.length) : 0;
+      const alta = rows.filter(r => (r.pontuacao?.total || 0) >= 80).length;
+      const sem = filteredFeatures.filter(f => !rowsByCode.has(getFeatureCode(f))).length;
+      document.getElementById("kpiMun").textContent = numberBR(filteredFeatures.length);
+      document.getElementById("kpiResp").textContent = numberBR(rows.length);
+      document.getElementById("kpiMedia").textContent = media;
+      document.getElementById("kpiAlta").textContent = numberBR(alta);
+      document.getElementById("kpiSem").textContent = numberBR(sem);
+      renderBars(filteredFeatures);
+      renderRanking(rows);
+      statusEl.textContent = `${numberBR(rows.length)} município(s) com resposta na UF ${ufSelect.value}.`;
+    }
+
+    function renderBars(features) {
+      const order = ["Alta capacidade","Capacidade moderada","Capacidade limitada","Baixa capacidade","Sem resposta"];
+      const counts = Object.fromEntries(order.map(k => [k,0]));
+      for (const f of features) {
+        const row = rowsByCode.get(getFeatureCode(f));
+        const cls = row?.pontuacao?.classificacao || "Sem resposta";
+        counts[cls] = (counts[cls] || 0) + 1;
+      }
+      const max = Math.max(...Object.values(counts), 1);
+      document.getElementById("bars").innerHTML = order.map(cls => {
+        const value = counts[cls] || 0;
+        const width = Math.max(2, Math.round((value/max)*100));
+        return `<div class="bar-row"><span>${cls}</span><div class="bar-bg"><div class="bar-fill" style="width:${width}%; background:${colorFor(cls)}"></div></div><strong>${numberBR(value)}</strong></div>`;
+      }).join("");
+    }
+
+    function renderRanking(rows) {
+      const tbody = document.getElementById("ranking");
+      const sorted = [...rows].sort((a,b)=>(b.pontuacao?.total || 0)-(a.pontuacao?.total || 0));
+      if (!sorted.length) {
+        tbody.innerHTML = `<tr><td colspan="4">Nenhum município avaliado para os filtros selecionados.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = sorted.map(r => `<tr><td>${r.identificacao?.municipio || ""}</td><td>${r.identificacao?.codigo_ibge || ""}</td><td><strong>${r.pontuacao?.total ?? ""}</strong></td><td>${r.pontuacao?.classificacao || ""}</td></tr>`).join("");
+    }
+
+    async function refreshUF() {
+      try {
+        rebuildIndex();
+        await loadMunicipalMesh(ufSelect.value);
+        renderMap();
+        renderStats();
+      } catch (err) {
+        statusEl.textContent = err.message;
+        console.error(err);
+      }
+    }
+
+    function renderOnlyFilters() {
+      renderMap();
+      renderStats();
+    }
+
+    async function start() {
+      initUFOptions();
+      initMap();
+      await loadConsolidado();
+      const ufsWithData = [...new Set(allRows.map(r => r.identificacao?.uf).filter(Boolean))].sort();
+      ufSelect.value = ufsWithData.includes("PE") ? "PE" : (ufsWithData[0] || "RJ");
+      ufSelect.addEventListener("change", refreshUF);
+      classSelect.addEventListener("change", renderOnlyFilters);
+      searchInput.addEventListener("input", renderOnlyFilters);
+      await refreshUF();
+    }
+
+    start().catch(err => { statusEl.textContent = err.message; console.error(err); });
+  </script>
+</body>
+</html>
