@@ -50,8 +50,8 @@
   </main>
   <script>
     async function loadData() {
-      const res = await fetch("../data/consolidado.json?ts=" + Date.now());
-      if (!res.ok) throw new Error("Arquivo consolidado não encontrado.");
+      const res = await fetch("data/consolidado.json?ts=" + Date.now());
+      if (!res.ok) throw new Error("Arquivo docs/data/consolidado.json não encontrado.");
       const data = await res.json();
       const rows = data.respostas || [];
       rows.sort((a,b) => b.pontuacao.total - a.pontuacao.total);
