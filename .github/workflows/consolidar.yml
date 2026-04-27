@@ -1,0 +1,34 @@
+name: Consolidar respostas INCA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "data/respostas/*.json"
+
+permissions:
+  contents: write
+
+jobs:
+  consolidar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Consolidar respostas
+        run: python scripts/consolidar_respostas.py
+
+      - name: Salvar consolidado no repositório
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/consolidado.json docs/data/consolidado.json
+          git commit -m "Atualiza base consolidada INCA" || echo "Sem alterações para commitar"
+          git push
