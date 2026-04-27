@@ -1,0 +1,34 @@
+{
+  "enviado_em": "2026-04-27T12:00:00.000Z",
+  "identificacao": {
+    "uf": "RJ",
+    "municipio": "Município Exemplo",
+    "orgao": "Defesa Civil Municipal",
+    "responsavel": "Responsável Técnico",
+    "email": "exemplo@municipio.gov.br",
+    "telefone": "(00) 00000-0000"
+  },
+  "respostas": {
+    "q1": 10,
+    "q2": 10,
+    "q3": 5,
+    "q4": 10,
+    "q5": 10,
+    "q6": 5,
+    "q7": 10,
+    "q8": 10,
+    "q9": 5,
+    "q10": 10,
+    "q11": 10,
+    "q12": 5
+  },
+  "pontuacao": {
+    "monitoramento": 21,
+    "emissao": 25,
+    "comunicacao": 21,
+    "preparacao": 17,
+    "total": 84,
+    "classificacao": "Alta capacidade"
+  },
+  "observacoes": "Resposta fictícia apenas para teste."
+}
