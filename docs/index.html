@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INCA - Formulário Municipal</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Índice Nacional de Capacidade Municipal de Alertas</p>
+        <h1>Formulário de Avaliação INCA</h1>
+        <p>Instrumento para avaliação da capacidade municipal ou estadual de monitoramento, emissão, disseminação e resposta a alertas antecipados.</p>
+      </div>
+      <div class="score-card">
+        <span>Nota estimada</span>
+        <strong id="scorePreview">0</strong>
+        <small id="classPreview">Preenchimento iniciado</small>
+      </div>
+    </section>
+
+    <form id="incaForm">
+      <section class="card">
+        <h2>Identificação territorial</h2>
+        <p class="hint">Selecione a UF para carregar automaticamente apenas os municípios correspondentes.</p>
+        <div class="grid">
+          <label>UF
+            <select name="uf" id="ufSelect" required>
+              <option value="">Selecione a UF</option>
+            </select>
+          </label>
+          <label>Município ou Estado
+            <select name="municipio" id="municipioSelect" required disabled>
+              <option value="">Selecione primeiro a UF</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Dimensão 1, Monitoramento e análise de risco</h2>
+        <p class="hint">Avalia a capacidade de acompanhar e interpretar informações de risco.</p>
+        <div class="questions" data-dim="monitoramento">
+          <label>1. Acompanha informações meteorológicas ou hidrológicas oficiais?
+            <select name="q1" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não acompanha</option>
+              <option value="5">5, acompanha de forma ocasional</option>
+              <option value="10">10, acompanha de forma sistemática</option>
+            </select>
+          </label>
+          <label>2. Possui acesso a sistemas de monitoramento de risco?
+            <select name="q2" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não possui</option>
+              <option value="5">5, acesso limitado</option>
+              <option value="10">10, acesso regular e institucionalizado</option>
+            </select>
+          </label>
+          <label>3. Existe sala de monitoramento ou centro de operações?
+            <select name="q3" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não existe</option>
+              <option value="5">5, estrutura informal</option>
+              <option value="10">10, estrutura institucionalizada</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Dimensão 2, Capacidade institucional de emissão de alertas</h2>
+        <p class="hint">Avalia a capacidade operacional de emitir alertas oficiais à população.</p>
+        <div class="questions">
+          <label>4. Possui operadores cadastrados na plataforma IDAP?
+            <select name="q4" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não</option>
+              <option value="5">5, cadastro parcial</option>
+              <option value="10">10, operadores ativos</option>
+            </select>
+          </label>
+          <label>5. Já realizou emissão de alertas oficiais?
+            <select name="q5" required>
+              <option value="">Selecione</option>
+              <option value="0">0, nunca</option>
+              <option value="5">5, eventualmente</option>
+              <option value="10">10, regularmente</option>
+            </select>
+          </label>
+          <label>6. Existe protocolo institucional para decisão de emissão?
+            <select name="q6" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não existe</option>
+              <option value="5">5, informal</option>
+              <option value="10">10, formalizado</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Dimensão 3, Comunicação e disseminação de alertas</h2>
+        <p class="hint">Avalia a capacidade de comunicar riscos à população.</p>
+        <div class="questions">
+          <label>7. Quais canais utiliza para disseminação de alertas?
+            <select name="q7" required>
+              <option value="">Selecione</option>
+              <option value="0">0, nenhum</option>
+              <option value="5">5, um canal</option>
+              <option value="10">10, múltiplos canais</option>
+            </select>
+          </label>
+          <label>8. Utiliza redes sociais institucionais para alertas?
+            <select name="q8" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não</option>
+              <option value="5">5, ocasionalmente</option>
+              <option value="10">10, regularmente</option>
+            </select>
+          </label>
+          <label>9. Existem ações preventivas de comunicação de risco?
+            <select name="q9" required>
+              <option value="">Selecione</option>
+              <option value="0">0, inexistente</option>
+              <option value="5">5, pontual</option>
+              <option value="10">10, regular</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Dimensão 4, Preparação e resposta</h2>
+        <p class="hint">Avalia o nível de preparação para resposta a situações de risco.</p>
+        <div class="questions">
+          <label>10. Possui plano de contingência atualizado?
+            <select name="q10" required>
+              <option value="">Selecione</option>
+              <option value="0">0, inexistente</option>
+              <option value="5">5, desatualizado</option>
+              <option value="10">10, atualizado</option>
+            </select>
+          </label>
+          <label>11. Possui rotas de evacuação mapeadas?
+            <select name="q11" required>
+              <option value="">Selecione</option>
+              <option value="0">0, não</option>
+              <option value="5">5, parcialmente</option>
+              <option value="10">10, completamente</option>
+            </select>
+          </label>
+          <label>12. Realizou simulados de evacuação ou preparação comunitária?
+            <select name="q12" required>
+              <option value="">Selecione</option>
+              <option value="0">0, nunca</option>
+              <option value="5">5, ocasionalmente</option>
+              <option value="10">10, regularmente</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Observações</h2>
+        <label>Comentários adicionais
+          <textarea name="observacoes" rows="5" placeholder="Informe detalhes relevantes, dificuldades, evidências ou links úteis."></textarea>
+        </label>
+      </section>
+
+      <button class="primary" type="submit">Enviar avaliação</button>
+      <p id="status" class="status"></p>
+    </form>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>
