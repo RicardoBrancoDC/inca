@@ -1,5 +1,4 @@
-const API_URL = "COLE_AQUI_A_URL_DO_SEU_WORKER";
-
+const API_URL = "https://inca-form-api.ricardoamaralbranco.workers.dev";
 const form = document.getElementById("incaForm");
 const statusEl = document.getElementById("status");
 const scorePreview = document.getElementById("scorePreview");
