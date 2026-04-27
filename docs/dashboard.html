@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel INCA</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .kpis { display:grid; grid-template-columns: repeat(4,1fr); gap:16px; }
+    .kpi { background:white; border:1px solid var(--border); border-radius:18px; padding:18px; }
+    .kpi strong { font-size:34px; color:var(--blue); }
+    table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; }
+    th, td { border-bottom:1px solid var(--border); padding:10px; text-align:left; }
+    th { background:var(--light-blue); color:var(--blue); }
+    @media (max-width:760px){ .kpis{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Painel de acompanhamento</p>
+        <h1>Painel INCA</h1>
+        <p>Visualização preliminar das avaliações recebidas pelos municípios e estados.</p>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <div class="kpi"><span>Respostas</span><br><strong id="kpiTotal">0</strong></div>
+      <div class="kpi"><span>Média geral</span><br><strong id="kpiMedia">0</strong></div>
+      <div class="kpi"><span>Maior nota</span><br><strong id="kpiMax">0</strong></div>
+      <div class="kpi"><span>Alta capacidade</span><br><strong id="kpiAlta">0</strong></div>
+    </section>
+
+    <section class="card">
+      <h2>Ranking preliminar</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>UF</th>
+            <th>Município/Estado</th>
+            <th>Órgão</th>
+            <th>Nota</th>
+            <th>Classificação</th>
+          </tr>
+        </thead>
+        <tbody id="ranking"></tbody>
+      </table>
+    </section>
+  </main>
+  <script>
+    async function loadData() {
+      const res = await fetch("../data/consolidado.json?ts=" + Date.now());
+      if (!res.ok) throw new Error("Arquivo consolidado não encontrado.");
+      const data = await res.json();
+      const rows = data.respostas || [];
+      rows.sort((a,b) => b.pontuacao.total - a.pontuacao.total);
+
+      document.getElementById("kpiTotal").textContent = rows.length;
+      const media = rows.length ? Math.round(rows.reduce((s,r)=>s+r.pontuacao.total,0)/rows.length) : 0;
+      document.getElementById("kpiMedia").textContent = media;
+      document.getElementById("kpiMax").textContent = rows.length ? rows[0].pontuacao.total : 0;
+      document.getElementById("kpiAlta").textContent = rows.filter(r=>r.pontuacao.total >= 80).length;
+
+      const tbody = document.getElementById("ranking");
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.identificacao.uf}</td>
+          <td>${r.identificacao.municipio}</td>
+          <td>${r.identificacao.orgao || r.tipo_ente || 'Municipal'}</td>
+          <td><strong>${r.pontuacao.total}</strong></td>
+          <td>${r.pontuacao.classificacao}</td>
+        </tr>
+      `).join("");
+    }
+    loadData().catch(err => {
+      document.getElementById("ranking").innerHTML = `<tr><td colspan="5">${err.message}</td></tr>`;
+    });
+  </script>
+</body>
+</html>
