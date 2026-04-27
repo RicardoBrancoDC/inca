@@ -4,77 +4,609 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel INCA</title>
+
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
   <style>
-    .kpis { display:grid; grid-template-columns: repeat(4,1fr); gap:16px; }
-    .kpi { background:white; border:1px solid var(--border); border-radius:18px; padding:18px; }
-    .kpi strong { font-size:34px; color:var(--blue); }
-    table { width:100%; border-collapse:collapse; background:white; border-radius:16px; overflow:hidden; }
-    th, td { border-bottom:1px solid var(--border); padding:10px; text-align:left; }
-    th { background:var(--light-blue); color:var(--blue); }
-    @media (max-width:760px){ .kpis{grid-template-columns:1fr;} }
+    body { background:#f6f8fb; }
+    .dashboard-container {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 34px 22px 60px;
+    }
+
+    .dash-header {
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 22px;
+      align-items:end;
+      margin-bottom: 20px;
+    }
+
+    .dash-header h1 {
+      color: var(--blue);
+      font-size: 38px;
+      margin: 6px 0 8px;
+      line-height: 1.05;
+    }
+
+    .dash-header p {
+      color: var(--grey);
+      font-size: 17px;
+      line-height:1.45;
+      margin:0;
+    }
+
+    .filters {
+      background:white;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      box-shadow: 0 8px 20px rgba(16, 24, 40, .04);
+    }
+
+    .filters label {
+      font-size:13px;
+      color:#344054;
+    }
+
+    .filters select {
+      padding:10px 12px;
+      border-radius:12px;
+    }
+
+    .kpis {
+      display:grid;
+      grid-template-columns: repeat(4,1fr);
+      gap:14px;
+      margin-bottom: 16px;
+    }
+
+    .kpi {
+      background:white;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px 20px;
+      box-shadow:0 8px 20px rgba(16, 24, 40, .04);
+    }
+
+    .kpi span {
+      color:#344054;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .kpi strong {
+      display:block;
+      font-size:36px;
+      color:var(--blue);
+      line-height:1;
+      margin-top:8px;
+    }
+
+    .main-grid {
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) 350px;
+      gap:16px;
+      align-items:stretch;
+    }
+
+    .map-card, .side-card, .table-card, .chart-card {
+      background:white;
+      border:1px solid var(--border);
+      border-radius:20px;
+      box-shadow: 0 12px 28px rgba(16, 24, 40, .06);
+      overflow:hidden;
+    }
+
+    .map-head {
+      padding:18px 20px 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:flex-start;
+    }
+
+    .map-head h2, .side-card h2, .table-card h2, .chart-card h2 {
+      color:var(--blue);
+      margin:0;
+      font-size:22px;
+    }
+
+    .map-head p {
+      margin:5px 0 0;
+      color:var(--grey);
+      line-height:1.4;
+    }
+
+    #map {
+      height: 650px;
+      width:100%;
+      background:#eef4f8;
+    }
+
+    .legend {
+      min-width:210px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px;
+      box-shadow:0 8px 18px rgba(16,24,40,.07);
+      font-size:13px;
+    }
+
+    .legend-title {
+      font-weight:800;
+      color:var(--blue);
+      margin-bottom:8px;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+
+    .legend-row {
+      display:grid;
+      grid-template-columns:22px 1fr;
+      gap:9px;
+      align-items:center;
+      margin:7px 0;
+      color:#344054;
+    }
+
+    .swatch {
+      width:22px;
+      height:16px;
+      border-radius:5px;
+      border:1px solid rgba(0,0,0,.08);
+    }
+
+    .side-stack {
+      display:grid;
+      gap:16px;
+    }
+
+    .side-card {
+      padding:18px;
+    }
+
+    .insight {
+      display:grid;
+      grid-template-columns:54px 1fr;
+      gap:14px;
+      align-items:center;
+      padding:14px 0;
+      border-bottom:1px solid #edf1f5;
+    }
+
+    .insight:last-child { border-bottom:0; }
+
+    .icon-bubble {
+      width:54px;
+      height:54px;
+      border-radius:50%;
+      background:#f0f4f8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:25px;
+    }
+
+    .insight strong {
+      color:var(--blue);
+      display:block;
+      margin-bottom:4px;
+      text-transform:uppercase;
+      font-size:13px;
+    }
+
+    .insight p {
+      margin:0;
+      color:var(--grey);
+      line-height:1.35;
+      font-size:14px;
+    }
+
+    .mini-flow {
+      display:grid;
+      grid-template-columns:1fr 28px 1fr 28px 1fr;
+      align-items:center;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .flow-step {
+      background:#f7f9fb;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 8px;
+      text-align:center;
+      min-height:92px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:7px;
+    }
+
+    .flow-step b {
+      color:var(--blue);
+      font-size:12px;
+      text-transform:uppercase;
+      line-height:1.15;
+    }
+
+    .flow-icon { font-size:27px; }
+    .flow-arrow { color:var(--blue); font-weight:900; text-align:center; font-size:24px; }
+
+    .lower-grid {
+      display:grid;
+      grid-template-columns: 390px 1fr;
+      gap:16px;
+      margin-top:16px;
+    }
+
+    .chart-card, .table-card {
+      padding:18px;
+    }
+
+    .bars {
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .bar-row {
+      display:grid;
+      grid-template-columns:150px 1fr 48px;
+      gap:10px;
+      align-items:center;
+      font-size:13px;
+      color:#344054;
+    }
+
+    .bar-bg {
+      height:14px;
+      background:#edf2f7;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .bar-fill {
+      height:100%;
+      border-radius:999px;
+    }
+
+    table { width:100%; border-collapse:collapse; background:white; }
+    th, td { border-bottom:1px solid var(--border); padding:10px; text-align:left; font-size:14px; }
+    th { background:var(--light-blue); color:var(--blue); position:sticky; top:0; }
+    .table-wrap { max-height:430px; overflow:auto; border-radius:14px; border:1px solid var(--border); margin-top:12px; }
+
+    .leaflet-popup-content-wrapper {
+      border-radius:14px;
+    }
+
+    .popup-title {
+      color:var(--blue);
+      font-weight:800;
+      font-size:15px;
+      margin-bottom:6px;
+    }
+
+    .popup-line {
+      color:#344054;
+      margin:3px 0;
+    }
+
+    @media (max-width: 1100px) {
+      .dash-header, .main-grid, .lower-grid {
+        grid-template-columns:1fr;
+      }
+      #map { height:560px; }
+    }
+
+    @media (max-width:760px) {
+      .kpis { grid-template-columns:1fr 1fr; }
+      .filters { grid-template-columns:1fr; }
+      .map-head { display:block; }
+      .legend { margin-top:12px; }
+    }
   </style>
 </head>
 <body>
-  <main class="container">
-    <section class="hero">
+  <main class="dashboard-container">
+    <section class="dash-header">
       <div>
-        <p class="eyebrow">Painel de acompanhamento</p>
-        <h1>Painel INCA</h1>
-        <p>Visualização preliminar das avaliações recebidas pelos municípios e estados.</p>
+        <p class="eyebrow">Painel de acompanhamento territorial</p>
+        <h1>Mapa Nacional de Capacidade Municipal de Alertas (INCA)</h1>
+        <p>Visualização preliminar da maturidade institucional dos sistemas municipais de alerta, com dados demonstrativos para teste do painel.</p>
+      </div>
+
+      <div class="filters">
+        <label>Filtrar por UF
+          <select id="filterUF">
+            <option value="">Todas as UFs</option>
+          </select>
+        </label>
+        <label>Filtrar por classificação
+          <select id="filterClass">
+            <option value="">Todas as classificações</option>
+            <option value="Alta capacidade">Alta capacidade</option>
+            <option value="Capacidade moderada">Capacidade moderada</option>
+            <option value="Capacidade limitada">Capacidade limitada</option>
+            <option value="Baixa capacidade">Baixa capacidade</option>
+          </select>
+        </label>
       </div>
     </section>
 
     <section class="kpis">
-      <div class="kpi"><span>Respostas</span><br><strong id="kpiTotal">0</strong></div>
-      <div class="kpi"><span>Média geral</span><br><strong id="kpiMedia">0</strong></div>
-      <div class="kpi"><span>Maior nota</span><br><strong id="kpiMax">0</strong></div>
-      <div class="kpi"><span>Alta capacidade</span><br><strong id="kpiAlta">0</strong></div>
+      <div class="kpi"><span>Respostas</span><strong id="kpiTotal">0</strong></div>
+      <div class="kpi"><span>Média geral</span><strong id="kpiMedia">0</strong></div>
+      <div class="kpi"><span>Maior nota</span><strong id="kpiMax">0</strong></div>
+      <div class="kpi"><span>Alta capacidade</span><strong id="kpiAlta">0</strong></div>
     </section>
 
-    <section class="card">
-      <h2>Ranking preliminar</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>UF</th>
-            <th>Município/Estado</th>
-            <th>Órgão</th>
-            <th>Nota</th>
-            <th>Classificação</th>
-          </tr>
-        </thead>
-        <tbody id="ranking"></tbody>
-      </table>
+    <section class="main-grid">
+      <div class="map-card">
+        <div class="map-head">
+          <div>
+            <h2>Mapa territorial do INCA</h2>
+            <p>Cada ponto representa uma avaliação municipal fictícia. A cor indica a classificação final do índice.</p>
+          </div>
+          <div class="legend">
+            <div class="legend-title">Classificação do índice</div>
+            <div class="legend-row"><span class="swatch" style="background:#003f73"></span><span>Alta capacidade, 80 a 100</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#5b9bd5"></span><span>Capacidade moderada, 60 a 79</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#bdd7ee"></span><span>Capacidade limitada, 40 a 59</span></div>
+            <div class="legend-row"><span class="swatch" style="background:#d9d9d9"></span><span>Baixa capacidade, 0 a 39</span></div>
+          </div>
+        </div>
+        <div id="map"></div>
+      </div>
+
+      <div class="side-stack">
+        <div class="side-card">
+          <h2>Aplicações estratégicas</h2>
+
+          <div class="insight">
+            <div class="icon-bubble">📍</div>
+            <div>
+              <strong>Diagnóstico territorial</strong>
+              <p>Identifica diferenças regionais na capacidade de emissão e disseminação de alertas.</p>
+            </div>
+          </div>
+
+          <div class="insight">
+            <div class="icon-bubble">🏛️</div>
+            <div>
+              <strong>Priorização de políticas públicas</strong>
+              <p>Apoia a definição de municípios prioritários para capacitação e apoio técnico.</p>
+            </div>
+          </div>
+
+          <div class="insight">
+            <div class="icon-bubble">📈</div>
+            <div>
+              <strong>Monitoramento contínuo</strong>
+              <p>Permite acompanhar a evolução da capacidade municipal ao longo do tempo.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <h2>Como o INCA gera inteligência territorial</h2>
+          <div class="mini-flow">
+            <div class="flow-step"><span class="flow-icon">📄</span><b>Dados municipais</b></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><span class="flow-icon">🧮</span><b>Cálculo do INCA</b></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><span class="flow-icon">🗺️</span><b>Mapa nacional</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lower-grid">
+      <div class="chart-card">
+        <h2>Distribuição por classificação</h2>
+        <div id="classBars" class="bars"></div>
+      </div>
+
+      <div class="table-card">
+        <h2>Ranking preliminar</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>UF</th>
+                <th>Município/Estado</th>
+                <th>Nota</th>
+                <th>Classificação</th>
+              </tr>
+            </thead>
+            <tbody id="ranking"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    const COLORS = {
+      "Alta capacidade": "#003f73",
+      "Capacidade moderada": "#5b9bd5",
+      "Capacidade limitada": "#bdd7ee",
+      "Baixa capacidade": "#d9d9d9"
+    };
+
+    let allRows = [];
+    let map;
+    let layerGroup;
+
+    function colorFor(classificacao) {
+      return COLORS[classificacao] || "#d9d9d9";
+    }
+
+    function numberBR(value) {
+      return Number(value || 0).toLocaleString("pt-BR");
+    }
+
     async function loadData() {
       const res = await fetch("data/consolidado.json?ts=" + Date.now());
       if (!res.ok) throw new Error("Arquivo docs/data/consolidado.json não encontrado.");
       const data = await res.json();
-      const rows = data.respostas || [];
-      rows.sort((a,b) => b.pontuacao.total - a.pontuacao.total);
+      allRows = data.respostas || [];
+      initFilters(allRows);
+      initMap();
+      render();
+    }
 
-      document.getElementById("kpiTotal").textContent = rows.length;
-      const media = rows.length ? Math.round(rows.reduce((s,r)=>s+r.pontuacao.total,0)/rows.length) : 0;
+    function initFilters(rows) {
+      const ufSelect = document.getElementById("filterUF");
+      const ufs = [...new Set(rows.map(r => r.identificacao?.uf).filter(Boolean))].sort();
+      ufSelect.innerHTML = '<option value="">Todas as UFs</option>' +
+        ufs.map(uf => `<option value="${uf}">${uf}</option>`).join("");
+
+      ufSelect.addEventListener("change", render);
+      document.getElementById("filterClass").addEventListener("change", render);
+    }
+
+    function initMap() {
+      map = L.map("map", {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).setView([-14.2, -51.9], 4);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(map);
+
+      layerGroup = L.layerGroup().addTo(map);
+    }
+
+    function getFilteredRows() {
+      const uf = document.getElementById("filterUF").value;
+      const cls = document.getElementById("filterClass").value;
+
+      return allRows.filter(r => {
+        const okUF = !uf || r.identificacao?.uf === uf;
+        const okClass = !cls || r.pontuacao?.classificacao === cls;
+        return okUF && okClass;
+      });
+    }
+
+    function render() {
+      const rows = getFilteredRows();
+      rows.sort((a,b) => (b.pontuacao?.total || 0) - (a.pontuacao?.total || 0));
+
+      renderKpis(rows);
+      renderMap(rows);
+      renderBars(rows);
+      renderRanking(rows);
+    }
+
+    function renderKpis(rows) {
+      const total = rows.length;
+      const media = total ? Math.round(rows.reduce((s,r)=>s+(r.pontuacao?.total || 0),0)/total) : 0;
+      const max = total ? Math.max(...rows.map(r=>r.pontuacao?.total || 0)) : 0;
+      const alta = rows.filter(r => (r.pontuacao?.total || 0) >= 80).length;
+
+      document.getElementById("kpiTotal").textContent = numberBR(total);
       document.getElementById("kpiMedia").textContent = media;
-      document.getElementById("kpiMax").textContent = rows.length ? rows[0].pontuacao.total : 0;
-      document.getElementById("kpiAlta").textContent = rows.filter(r=>r.pontuacao.total >= 80).length;
+      document.getElementById("kpiMax").textContent = max;
+      document.getElementById("kpiAlta").textContent = numberBR(alta);
+    }
 
+    function renderMap(rows) {
+      layerGroup.clearLayers();
+
+      const points = [];
+
+      rows.forEach(r => {
+        const lat = Number(r.localizacao?.latitude);
+        const lon = Number(r.localizacao?.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+        const cls = r.pontuacao?.classificacao || "Baixa capacidade";
+        const total = r.pontuacao?.total || 0;
+
+        const marker = L.circleMarker([lat, lon], {
+          radius: total >= 80 ? 5.3 : total >= 60 ? 4.6 : total >= 40 ? 4.1 : 3.8,
+          color: "#ffffff",
+          weight: 0.8,
+          fillColor: colorFor(cls),
+          fillOpacity: 0.78
+        }).bindPopup(`
+          <div class="popup-title">${r.identificacao?.municipio || "Município"} - ${r.identificacao?.uf || ""}</div>
+          <div class="popup-line"><b>Nota INCA:</b> ${total}</div>
+          <div class="popup-line"><b>Classificação:</b> ${cls}</div>
+          <div class="popup-line"><b>Monitoramento:</b> ${r.pontuacao?.monitoramento ?? "-"}</div>
+          <div class="popup-line"><b>Emissão:</b> ${r.pontuacao?.emissao ?? "-"}</div>
+          <div class="popup-line"><b>Comunicação:</b> ${r.pontuacao?.comunicacao ?? "-"}</div>
+          <div class="popup-line"><b>Preparação:</b> ${r.pontuacao?.preparacao ?? "-"}</div>
+        `);
+
+        marker.addTo(layerGroup);
+        points.push([lat, lon]);
+      });
+
+      if (points.length && points.length < 1200) {
+        map.fitBounds(points, { padding: [30, 30] });
+      } else {
+        map.setView([-14.2, -51.9], 4);
+      }
+    }
+
+    function renderBars(rows) {
+      const order = ["Alta capacidade", "Capacidade moderada", "Capacidade limitada", "Baixa capacidade"];
+      const counts = Object.fromEntries(order.map(k => [k, 0]));
+
+      rows.forEach(r => {
+        const cls = r.pontuacao?.classificacao || "Baixa capacidade";
+        counts[cls] = (counts[cls] || 0) + 1;
+      });
+
+      const max = Math.max(...Object.values(counts), 1);
+
+      document.getElementById("classBars").innerHTML = order.map(cls => {
+        const value = counts[cls] || 0;
+        const width = Math.max(2, Math.round((value / max) * 100));
+        return `
+          <div class="bar-row">
+            <span>${cls}</span>
+            <div class="bar-bg">
+              <div class="bar-fill" style="width:${width}%; background:${colorFor(cls)}"></div>
+            </div>
+            <strong>${numberBR(value)}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRanking(rows) {
       const tbody = document.getElementById("ranking");
-      tbody.innerHTML = rows.map(r => `
+      const topRows = rows.slice(0, 80);
+
+      tbody.innerHTML = topRows.map(r => `
         <tr>
-          <td>${r.identificacao.uf}</td>
-          <td>${r.identificacao.municipio}</td>
-          <td>${r.identificacao.orgao || r.tipo_ente || 'Municipal'}</td>
-          <td><strong>${r.pontuacao.total}</strong></td>
-          <td>${r.pontuacao.classificacao}</td>
+          <td>${r.identificacao?.uf || ""}</td>
+          <td>${r.identificacao?.municipio || ""}</td>
+          <td><strong>${r.pontuacao?.total ?? ""}</strong></td>
+          <td>${r.pontuacao?.classificacao || ""}</td>
         </tr>
       `).join("");
+
+      if (!topRows.length) {
+        tbody.innerHTML = `<tr><td colspan="4">Nenhum registro encontrado para os filtros selecionados.</td></tr>`;
+      }
     }
+
     loadData().catch(err => {
-      document.getElementById("ranking").innerHTML = `<tr><td colspan="5">${err.message}</td></tr>`;
+      document.getElementById("ranking").innerHTML = `<tr><td colspan="4">${err.message}</td></tr>`;
+      console.error(err);
     });
   </script>
 </body>
