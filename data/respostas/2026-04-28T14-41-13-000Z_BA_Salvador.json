@@ -1,0 +1,32 @@
+{
+  "enviado_em": "2026-04-28T14:41:12.159Z",
+  "tipo_ente": "Municipal",
+  "identificacao": {
+    "uf": "BA",
+    "municipio": "Salvador",
+    "codigo_ibge": "2927408"
+  },
+  "respostas": {
+    "q1": 10,
+    "q2": 10,
+    "q3": 10,
+    "q4": 10,
+    "q5": 10,
+    "q6": 10,
+    "q7": 10,
+    "q8": 10,
+    "q9": 10,
+    "q10": 10,
+    "q11": 10,
+    "q12": 10
+  },
+  "pontuacao": {
+    "monitoramento": 25,
+    "emissao": 30,
+    "comunicacao": 25,
+    "preparacao": 20,
+    "total": 100,
+    "classificacao": "Alta capacidade"
+  },
+  "observacoes": ""
+}
