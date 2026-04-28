@@ -60,7 +60,7 @@
       <div>
         <p class="eyebrow">Painel territorial com malha municipal</p>
         <h1>Mapa Municipal de Capacidade de Alertas (INCA)</h1>
-        <p>Visualização por município, usando o código IBGE salvo no formulário e a malha municipal carregada pela API pública do IBGE.</p>
+        <p>Visualização nacional ou por UF, usando o código IBGE salvo no formulário e a malha municipal carregada pela API pública do IBGE.</p>
       </div>
       <div class="navlinks">
         <a href="index.html">Formulário</a>
@@ -69,7 +69,7 @@
     </section>
 
     <section class="controls">
-      <label>UF da malha municipal
+      <label>Recorte territorial
         <select id="ufSelect"></select>
       </label>
       <label>Classificação
@@ -88,7 +88,7 @@
     </section>
 
     <section class="kpis">
-      <div class="kpi"><span>Municípios na UF</span><strong id="kpiMun">0</strong></div>
+      <div class="kpi"><span>Municípios no recorte</span><strong id="kpiMun">0</strong></div>
       <div class="kpi"><span>Com resposta</span><strong id="kpiResp">0</strong></div>
       <div class="kpi"><span>Média INCA</span><strong id="kpiMedia">0</strong></div>
       <div class="kpi"><span>Alta capacidade</span><strong id="kpiAlta">0</strong></div>
@@ -124,14 +124,14 @@
         </div>
 
         <div class="side-card">
-          <h2>Distribuição na UF selecionada</h2>
+          <h2>Distribuição no recorte</h2>
           <div id="bars" class="bars"></div>
         </div>
       </div>
     </section>
 
     <section class="table-card">
-      <h2>Ranking da UF selecionada</h2>
+      <h2>Ranking do recorte selecionado</h2>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Município</th><th>Código IBGE</th><th>Nota</th><th>Classificação</th></tr></thead>
@@ -143,196 +143,38 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const UF_OPTIONS = [["AC","Acre"],["AL","Alagoas"],["AP","Amapá"],["AM","Amazonas"],["BA","Bahia"],["CE","Ceará"],["DF","Distrito Federal"],["ES","Espírito Santo"],["GO","Goiás"],["MA","Maranhão"],["MT","Mato Grosso"],["MS","Mato Grosso do Sul"],["MG","Minas Gerais"],["PA","Pará"],["PB","Paraíba"],["PR","Paraná"],["PE","Pernambuco"],["PI","Piauí"],["RJ","Rio de Janeiro"],["RN","Rio Grande do Norte"],["RS","Rio Grande do Sul"],["RO","Rondônia"],["RR","Roraima"],["SC","Santa Catarina"],["SP","São Paulo"],["SE","Sergipe"],["TO","Tocantins"]];
+    const UF_OPTIONS = [["BR","Brasil inteiro"],["AC","Acre"],["AL","Alagoas"],["AP","Amapá"],["AM","Amazonas"],["BA","Bahia"],["CE","Ceará"],["DF","Distrito Federal"],["ES","Espírito Santo"],["GO","Goiás"],["MA","Maranhão"],["MT","Mato Grosso"],["MS","Mato Grosso do Sul"],["MG","Minas Gerais"],["PA","Pará"],["PB","Paraíba"],["PR","Paraná"],["PE","Pernambuco"],["PI","Piauí"],["RJ","Rio de Janeiro"],["RN","Rio Grande do Norte"],["RS","Rio Grande do Sul"],["RO","Rondônia"],["RR","Roraima"],["SC","Santa Catarina"],["SP","São Paulo"],["SE","Sergipe"],["TO","Tocantins"]];
+    const UF_LIST = UF_OPTIONS.filter(([uf]) => uf !== "BR").map(([uf]) => uf);
     const COLORS = {"Alta capacidade":"#003f73","Capacidade moderada":"#5b9bd5","Capacidade limitada":"#bdd7ee","Baixa capacidade":"#d9d9d9","Sem resposta":"#f2f4f7"};
     const STATE_ID = {AC:12,AL:27,AP:16,AM:13,BA:29,CE:23,DF:53,ES:32,GO:52,MA:21,MT:51,MS:50,MG:31,PA:15,PB:25,PR:41,PE:26,PI:22,RJ:33,RN:24,RS:43,RO:11,RR:14,SC:42,SP:35,SE:28,TO:17};
-
     let allRows = [], rowsByCode = new Map(), currentGeoJson = null, map, geoLayer;
+    const meshCache = new Map();
     const ufSelect = document.getElementById("ufSelect");
     const classSelect = document.getElementById("classSelect");
     const searchInput = document.getElementById("searchInput");
     const statusEl = document.getElementById("status");
-
-    function normalizeCode(value) {
-      if (value === undefined || value === null) return "";
-      return String(value).replace(/\D/g, "").padStart(7, "0").slice(-7);
-    }
-
-    function getFeatureCode(feature) {
-      const p = feature.properties || {};
-      const candidates = [p.codarea,p.CD_MUN,p.CD_MUNICI,p.CD_GEOCMU,p.GEOCODIGO,p.id,p.ID,p.codigo,p.codigo_ibge,p.CODIGO,p.geocodigo];
-      for (const c of candidates) {
-        const code = normalizeCode(c);
-        if (code.length === 7) return code;
-      }
-      return "";
-    }
-
-    function getFeatureName(feature) {
-      const p = feature.properties || {};
-      return p.nome || p.name || p.NM_MUN || p.NM_MUNICIP || p.NM_MUNICIPIO || p.nomearea || p.NOME || "Município";
-    }
-
-    function colorFor(cls) { return COLORS[cls] || COLORS["Sem resposta"]; }
-
-    function styleFeature(feature) {
-      const row = rowsByCode.get(getFeatureCode(feature));
-      const cls = row?.pontuacao?.classificacao || "Sem resposta";
-      return { color:"#ffffff", weight: row ? 0.7 : 0.45, fillColor:colorFor(cls), fillOpacity: row ? 0.82 : 0.68 };
-    }
-
-    function matchFilter(feature) {
-      const code = getFeatureCode(feature);
-      const row = rowsByCode.get(code);
-      const cls = row?.pontuacao?.classificacao || "Sem resposta";
-      const selectedClass = classSelect.value;
-      const search = searchInput.value.trim().toLowerCase();
-      const name = (row?.identificacao?.municipio || getFeatureName(feature)).toLowerCase();
-      if (selectedClass && cls !== selectedClass) return false;
-      if (search && !name.includes(search)) return false;
-      return true;
-    }
-
-    function initUFOptions() {
-      ufSelect.innerHTML = UF_OPTIONS.map(([sigla,nome]) => `<option value="${sigla}">${sigla} - ${nome}</option>`).join("");
-    }
-
-    async function loadConsolidado() {
-      const res = await fetch("data/consolidado.json?ts=" + Date.now());
-      if (!res.ok) throw new Error("Não foi possível carregar docs/data/consolidado.json");
-      const data = await res.json();
-      allRows = data.respostas || [];
-    }
-
-    function rebuildIndex() {
-      rowsByCode = new Map();
-      for (const row of allRows) {
-        if (row.identificacao?.uf !== ufSelect.value) continue;
-        const code = normalizeCode(row.identificacao?.codigo_ibge);
-        if (!code) continue;
-        const prev = rowsByCode.get(code);
-        const t = new Date(row.enviado_em || 0).getTime();
-        const pt = new Date(prev?.enviado_em || 0).getTime();
-        if (!prev || t >= pt) rowsByCode.set(code, row);
-      }
-    }
-
-    async function loadMunicipalMesh(uf) {
-      statusEl.textContent = `Carregando malha municipal de ${uf} pelo IBGE...`;
-      const stateId = STATE_ID[uf] || uf;
-      const url = `https://servicodados.ibge.gov.br/api/v3/malhas/estados/${stateId}?formato=application/vnd.geo+json&qualidade=minima&intrarregiao=municipio`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Não foi possível carregar a malha municipal do IBGE.");
-      const geojson = await response.json();
-      if (!geojson.features || !geojson.features.length) throw new Error("A resposta do IBGE não retornou feições municipais.");
-      currentGeoJson = geojson;
-    }
-
-    function initMap() {
-      map = L.map("map", { zoomControl:true, scrollWheelZoom:true }).setView([-14.2,-51.9], 4);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:"&copy; OpenStreetMap | Malha municipal: IBGE" }).addTo(map);
-    }
-
-    function renderMap() {
-      if (geoLayer) geoLayer.remove();
-      const filtered = { type:"FeatureCollection", features:(currentGeoJson.features || []).filter(matchFilter) };
-      geoLayer = L.geoJSON(filtered, {
-        style: styleFeature,
-        onEachFeature: (feature, layer) => {
-          const code = getFeatureCode(feature);
-          const row = rowsByCode.get(code);
-          const name = row?.identificacao?.municipio || getFeatureName(feature);
-          const cls = row?.pontuacao?.classificacao || "Sem resposta";
-          const nota = row?.pontuacao?.total;
-          layer.bindPopup(`<div class="popup-title">${name} - ${ufSelect.value}</div>
-            <div class="popup-line"><b>Código IBGE:</b> ${code || "-"}</div>
-            <div class="popup-line"><b>Nota INCA:</b> ${nota ?? "Sem avaliação"}</div>
-            <div class="popup-line"><b>Classificação:</b> ${cls}</div>
-            ${row ? `<div class="popup-line"><b>Monitoramento:</b> ${row.pontuacao?.monitoramento ?? "-"}</div>
-            <div class="popup-line"><b>Emissão:</b> ${row.pontuacao?.emissao ?? "-"}</div>
-            <div class="popup-line"><b>Comunicação:</b> ${row.pontuacao?.comunicacao ?? "-"}</div>
-            <div class="popup-line"><b>Preparação:</b> ${row.pontuacao?.preparacao ?? "-"}</div>` : ""}`);
-        }
-      }).addTo(map);
-      if (geoLayer.getBounds().isValid()) map.fitBounds(geoLayer.getBounds(), { padding:[24,24] });
-    }
-
-    function numberBR(v) { return Number(v || 0).toLocaleString("pt-BR"); }
-
-    function renderStats() {
-      const features = currentGeoJson.features || [];
-      const filteredFeatures = features.filter(matchFilter);
-      const filteredCodes = new Set(filteredFeatures.map(getFeatureCode));
-      const rows = [...rowsByCode.values()].filter(r => filteredCodes.has(normalizeCode(r.identificacao?.codigo_ibge)));
-      const media = rows.length ? Math.round(rows.reduce((s,r)=>s+(r.pontuacao?.total || 0),0)/rows.length) : 0;
-      const alta = rows.filter(r => (r.pontuacao?.total || 0) >= 80).length;
-      const sem = filteredFeatures.filter(f => !rowsByCode.has(getFeatureCode(f))).length;
-      document.getElementById("kpiMun").textContent = numberBR(filteredFeatures.length);
-      document.getElementById("kpiResp").textContent = numberBR(rows.length);
-      document.getElementById("kpiMedia").textContent = media;
-      document.getElementById("kpiAlta").textContent = numberBR(alta);
-      document.getElementById("kpiSem").textContent = numberBR(sem);
-      renderBars(filteredFeatures);
-      renderRanking(rows);
-      statusEl.textContent = `${numberBR(rows.length)} município(s) com resposta na UF ${ufSelect.value}.`;
-    }
-
-    function renderBars(features) {
-      const order = ["Alta capacidade","Capacidade moderada","Capacidade limitada","Baixa capacidade","Sem resposta"];
-      const counts = Object.fromEntries(order.map(k => [k,0]));
-      for (const f of features) {
-        const row = rowsByCode.get(getFeatureCode(f));
-        const cls = row?.pontuacao?.classificacao || "Sem resposta";
-        counts[cls] = (counts[cls] || 0) + 1;
-      }
-      const max = Math.max(...Object.values(counts), 1);
-      document.getElementById("bars").innerHTML = order.map(cls => {
-        const value = counts[cls] || 0;
-        const width = Math.max(2, Math.round((value/max)*100));
-        return `<div class="bar-row"><span>${cls}</span><div class="bar-bg"><div class="bar-fill" style="width:${width}%; background:${colorFor(cls)}"></div></div><strong>${numberBR(value)}</strong></div>`;
-      }).join("");
-    }
-
-    function renderRanking(rows) {
-      const tbody = document.getElementById("ranking");
-      const sorted = [...rows].sort((a,b)=>(b.pontuacao?.total || 0)-(a.pontuacao?.total || 0));
-      if (!sorted.length) {
-        tbody.innerHTML = `<tr><td colspan="4">Nenhum município avaliado para os filtros selecionados.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = sorted.map(r => `<tr><td>${r.identificacao?.municipio || ""}</td><td>${r.identificacao?.codigo_ibge || ""}</td><td><strong>${r.pontuacao?.total ?? ""}</strong></td><td>${r.pontuacao?.classificacao || ""}</td></tr>`).join("");
-    }
-
-    async function refreshUF() {
-      try {
-        rebuildIndex();
-        await loadMunicipalMesh(ufSelect.value);
-        renderMap();
-        renderStats();
-      } catch (err) {
-        statusEl.textContent = err.message;
-        console.error(err);
-      }
-    }
-
-    function renderOnlyFilters() {
-      renderMap();
-      renderStats();
-    }
-
-    async function start() {
-      initUFOptions();
-      initMap();
-      await loadConsolidado();
-      const ufsWithData = [...new Set(allRows.map(r => r.identificacao?.uf).filter(Boolean))].sort();
-      ufSelect.value = ufsWithData.includes("PE") ? "PE" : (ufsWithData[0] || "RJ");
-      ufSelect.addEventListener("change", refreshUF);
-      classSelect.addEventListener("change", renderOnlyFilters);
-      searchInput.addEventListener("input", renderOnlyFilters);
-      await refreshUF();
-    }
-
-    start().catch(err => { statusEl.textContent = err.message; console.error(err); });
+    function normalizeCode(value){ if(value===undefined||value===null)return ""; return String(value).replace(/\D/g,"").padStart(7,"0").slice(-7); }
+    function getFeatureCode(feature){ const p=feature.properties||{}; const c=[p.codarea,p.CD_MUN,p.CD_MUNICI,p.CD_GEOCMU,p.GEOCODIGO,p.id,p.ID,p.codigo,p.codigo_ibge,p.CODIGO,p.geocodigo]; for(const v of c){ const code=normalizeCode(v); if(code.length===7)return code;} return ""; }
+    function getFeatureName(feature){ const p=feature.properties||{}; return p.nome||p.name||p.NM_MUN||p.NM_MUNICIP||p.NM_MUNICIPIO||p.nomearea||p.NOME||"Município"; }
+    function colorFor(cls){ return COLORS[cls]||COLORS["Sem resposta"]; }
+    function styleFeature(feature){ const row=rowsByCode.get(getFeatureCode(feature)); const cls=row?.pontuacao?.classificacao||"Sem resposta"; return {color:"#ffffff",weight:row?0.55:0.28,fillColor:colorFor(cls),fillOpacity:row?0.86:0.60}; }
+    function matchFilter(feature){ const code=getFeatureCode(feature); const row=rowsByCode.get(code); const cls=row?.pontuacao?.classificacao||"Sem resposta"; const sel=classSelect.value; const search=searchInput.value.trim().toLowerCase(); const name=(row?.identificacao?.municipio||getFeatureName(feature)).toLowerCase(); if(sel&&cls!==sel)return false; if(search&&!name.includes(search))return false; return true; }
+    function initUFOptions(){ ufSelect.innerHTML = UF_OPTIONS.map(([sigla,nome])=>'<option value="'+sigla+'">'+sigla+' - '+nome+'</option>').join(""); }
+    async function loadConsolidado(){ const res=await fetch("data/consolidado.json?ts="+Date.now()); if(!res.ok)throw new Error("Não foi possível carregar docs/data/consolidado.json"); const data=await res.json(); allRows=data.respostas||[]; }
+    function rebuildIndex(){ rowsByCode=new Map(); const selected=ufSelect.value; for(const row of allRows){ const uf=row.identificacao?.uf; if(selected!=="BR"&&uf!==selected)continue; const code=normalizeCode(row.identificacao?.codigo_ibge); if(!code)continue; const prev=rowsByCode.get(code); const t=new Date(row.enviado_em||0).getTime(); const pt=new Date(prev?.enviado_em||0).getTime(); if(!prev||t>=pt)rowsByCode.set(code,row); } }
+    async function fetchUFMesh(uf){ if(meshCache.has(uf))return meshCache.get(uf); const stateId=STATE_ID[uf]||uf; const url='https://servicodados.ibge.gov.br/api/v3/malhas/estados/'+stateId+'?formato=application/vnd.geo+json&qualidade=minima&intrarregiao=municipio'; const res=await fetch(url); if(!res.ok)throw new Error('Não foi possível carregar a malha municipal de '+uf+'.'); const geo=await res.json(); if(!geo.features||!geo.features.length)throw new Error('A resposta do IBGE não retornou municípios para '+uf+'.'); geo.features.forEach(f=>{f.properties=f.properties||{}; f.properties.uf_inca=uf;}); meshCache.set(uf,geo); return geo; }
+    async function loadMunicipalMesh(uf){ if(uf!=="BR"){ statusEl.textContent='Carregando malha municipal de '+uf+' pelo IBGE...'; currentGeoJson=await fetchUFMesh(uf); return; } statusEl.textContent="Carregando malha municipal do Brasil. Isso pode levar alguns segundos..."; const allFeatures=[]; let loaded=0; for(const state of UF_LIST){ const geo=await fetchUFMesh(state); allFeatures.push(...geo.features); loaded++; statusEl.textContent='Carregando Brasil inteiro: '+loaded+'/27 UFs...'; } currentGeoJson={type:"FeatureCollection",features:allFeatures}; }
+    function initMap(){ map=L.map("map",{zoomControl:true,scrollWheelZoom:true}).setView([-14.2,-51.9],4); L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"&copy; OpenStreetMap | Malha municipal: IBGE"}).addTo(map); }
+    function renderMap(){ if(geoLayer)geoLayer.remove(); const filtered={type:"FeatureCollection",features:(currentGeoJson.features||[]).filter(matchFilter)}; geoLayer=L.geoJSON(filtered,{style:styleFeature,onEachFeature:(feature,layer)=>{ const code=getFeatureCode(feature); const row=rowsByCode.get(code); const name=row?.identificacao?.municipio||getFeatureName(feature); const uf=row?.identificacao?.uf||feature.properties?.uf_inca||ufSelect.value; const cls=row?.pontuacao?.classificacao||"Sem resposta"; const nota=row?.pontuacao?.total; layer.bindTooltip(name+' - '+uf,{sticky:true}); layer.bindPopup('<div class="popup-title">'+name+' - '+uf+'</div><div class="popup-line"><b>Código IBGE:</b> '+(code||'-')+'</div><div class="popup-line"><b>Nota INCA:</b> '+(nota ?? 'Sem avaliação')+'</div><div class="popup-line"><b>Classificação:</b> '+cls+'</div>'+(row?'<div class="popup-line"><b>Monitoramento:</b> '+(row.pontuacao?.monitoramento??'-')+'</div><div class="popup-line"><b>Emissão:</b> '+(row.pontuacao?.emissao??'-')+'</div><div class="popup-line"><b>Comunicação:</b> '+(row.pontuacao?.comunicacao??'-')+'</div><div class="popup-line"><b>Preparação:</b> '+(row.pontuacao?.preparacao??'-')+'</div>':'')); }}).addTo(map); if(geoLayer.getBounds().isValid())map.fitBounds(geoLayer.getBounds(),{padding:[24,24]}); }
+    function numberBR(v){ return Number(v||0).toLocaleString("pt-BR"); }
+    function scopeLabel(){ return ufSelect.value==="BR"?"Brasil":'UF '+ufSelect.value; }
+    function renderStats(){ const features=currentGeoJson.features||[]; const filteredFeatures=features.filter(matchFilter); const filteredCodes=new Set(filteredFeatures.map(getFeatureCode)); const rows=[...rowsByCode.values()].filter(r=>filteredCodes.has(normalizeCode(r.identificacao?.codigo_ibge))); const media=rows.length?Math.round(rows.reduce((s,r)=>s+(r.pontuacao?.total||0),0)/rows.length):0; const alta=rows.filter(r=>(r.pontuacao?.total||0)>=80).length; const sem=filteredFeatures.filter(f=>!rowsByCode.has(getFeatureCode(f))).length; document.getElementById("kpiMun").textContent=numberBR(filteredFeatures.length); document.getElementById("kpiResp").textContent=numberBR(rows.length); document.getElementById("kpiMedia").textContent=media; document.getElementById("kpiAlta").textContent=numberBR(alta); document.getElementById("kpiSem").textContent=numberBR(sem); renderBars(filteredFeatures); renderRanking(rows); statusEl.textContent=numberBR(rows.length)+' município(s) com resposta no recorte '+scopeLabel()+'.'; }
+    function renderBars(features){ const order=["Alta capacidade","Capacidade moderada","Capacidade limitada","Baixa capacidade","Sem resposta"]; const counts=Object.fromEntries(order.map(k=>[k,0])); for(const f of features){ const row=rowsByCode.get(getFeatureCode(f)); const cls=row?.pontuacao?.classificacao||"Sem resposta"; counts[cls]=(counts[cls]||0)+1;} const max=Math.max(...Object.values(counts),1); document.getElementById("bars").innerHTML=order.map(cls=>{ const value=counts[cls]||0; const width=Math.max(2,Math.round((value/max)*100)); return '<div class="bar-row"><span>'+cls+'</span><div class="bar-bg"><div class="bar-fill" style="width:'+width+'%; background:'+colorFor(cls)+'"></div></div><strong>'+numberBR(value)+'</strong></div>'; }).join(""); }
+    function renderRanking(rows){ const tbody=document.getElementById("ranking"); const sorted=[...rows].sort((a,b)=>(b.pontuacao?.total||0)-(a.pontuacao?.total||0)); if(!sorted.length){ tbody.innerHTML='<tr><td colspan="4">Nenhum município avaliado para os filtros selecionados.</td></tr>'; return; } tbody.innerHTML=sorted.slice(0,250).map(r=>'<tr><td>'+(r.identificacao?.municipio||'')+'</td><td>'+(r.identificacao?.codigo_ibge||'')+'</td><td><strong>'+(r.pontuacao?.total??'')+'</strong></td><td>'+(r.pontuacao?.classificacao||'')+'</td></tr>').join(""); }
+    async function refreshUF(){ try{ rebuildIndex(); await loadMunicipalMesh(ufSelect.value); renderMap(); renderStats(); }catch(err){ statusEl.textContent=err.message; console.error(err);} }
+    function renderOnlyFilters(){ renderMap(); renderStats(); }
+    async function start(){ initUFOptions(); initMap(); await loadConsolidado(); ufSelect.value="BR"; ufSelect.addEventListener("change",refreshUF); classSelect.addEventListener("change",renderOnlyFilters); searchInput.addEventListener("input",renderOnlyFilters); await refreshUF(); }
+    start().catch(err=>{statusEl.textContent=err.message; console.error(err);});
   </script>
 </body>
 </html>
