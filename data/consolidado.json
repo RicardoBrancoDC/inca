@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-05-04T22:38:46.315826+00:00",
-  "total_respostas": 6,
+  "gerado_em": "2026-05-07T11:23:41.777040+00:00",
+  "total_respostas": 7,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -166,6 +166,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-05-04T22-38-38-476Z_PA_Belem.json"
+    },
+    {
+      "enviado_em": "2026-05-07T11:23:32.224Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "PA",
+        "municipio": "Parauapebas",
+        "codigo_ibge": "1505536"
+      },
+      "respostas": {
+        "q1": 10,
+        "q2": 10,
+        "q3": 10,
+        "q4": 10,
+        "q5": 10,
+        "q6": 10,
+        "q7": 10,
+        "q8": 0,
+        "q9": 10,
+        "q10": 10,
+        "q11": 10,
+        "q12": 5
+      },
+      "pontuacao": {
+        "monitoramento": 25,
+        "emissao": 30,
+        "comunicacao": 17,
+        "preparacao": 17,
+        "total": 89,
+        "classificacao": "Alta capacidade"
+      },
+      "observacoes": "",
+      "_arquivo": "data/respostas/2026-05-07T11-23-33-412Z_PA_Parauapebas.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
