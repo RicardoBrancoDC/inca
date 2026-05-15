@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-05-07T11:23:41.777040+00:00",
-  "total_respostas": 7,
+  "gerado_em": "2026-05-15T18:23:35.083829+00:00",
+  "total_respostas": 8,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -199,6 +199,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-05-07T11-23-33-412Z_PA_Parauapebas.json"
+    },
+    {
+      "enviado_em": "2026-05-15T18:23:25.477Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "PR",
+        "municipio": "Curitiba",
+        "codigo_ibge": "4106902"
+      },
+      "respostas": {
+        "q1": 10,
+        "q2": 10,
+        "q3": 10,
+        "q4": 0,
+        "q5": 0,
+        "q6": 0,
+        "q7": 10,
+        "q8": 0,
+        "q9": 5,
+        "q10": 10,
+        "q11": 10,
+        "q12": 5
+      },
+      "pontuacao": {
+        "monitoramento": 25,
+        "emissao": 0,
+        "comunicacao": 13,
+        "preparacao": 17,
+        "total": 55,
+        "classificacao": "Capacidade limitada"
+      },
+      "observacoes": "A visita técnica evidenciou que o município de Curitiba possui estrutura relevante de\nmonitoramento hidrometeorológico e gestão de riscos, destacando-se a atuação do\nCentro Municipal de Gestão de Riscos e Gerenciamento de Desastres (CMGERD) e do\nSistema de Alerta e Alarme de Prevenção a Desastres de Curitiba (SISAAPREV).\n\nEntretanto, apesar da existência da infraestrutura de monitoramento, verificou-se que o\nmunicípio ainda não possui equipe capacitada para uso operacional da Interface de\nDivulgação de Alertas Públicos (IDAP), não realizando ainda envio de alertas por meio\nda IDAP, aspecto que representa ponto de atenção para futuras etapas de\nimplementação da expansão municipal do DCA.",
+      "_arquivo": "data/respostas/2026-05-15T18-23-25-739Z_PR_Curitiba.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
