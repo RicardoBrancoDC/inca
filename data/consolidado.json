@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-06-01T17:49:09.705260+00:00",
-  "total_respostas": 9,
+  "gerado_em": "2026-06-01T18:00:04.290771+00:00",
+  "total_respostas": 10,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -265,6 +265,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-06-01T17-49-00-064Z_SC_Brusque.json"
+    },
+    {
+      "enviado_em": "2026-06-01T17:59:51.793Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "SC",
+        "municipio": "Florianópolis",
+        "codigo_ibge": "4205407"
+      },
+      "respostas": {
+        "q1": 5,
+        "q2": 5,
+        "q3": 5,
+        "q4": 0,
+        "q5": 0,
+        "q6": 0,
+        "q7": 5,
+        "q8": 5,
+        "q9": 0,
+        "q10": 5,
+        "q11": 5,
+        "q12": 5
+      },
+      "pontuacao": {
+        "monitoramento": 13,
+        "emissao": 0,
+        "comunicacao": 8,
+        "preparacao": 10,
+        "total": 31,
+        "classificacao": "Baixa capacidade"
+      },
+      "observacoes": "Dedepende completamete das previsões e mapeamento de riscos da Defesa Civil do Estado.",
+      "_arquivo": "data/respostas/2026-06-01T17-59-51-965Z_SC_Florianopolis.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
