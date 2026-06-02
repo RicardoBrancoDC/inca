@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-06-02T20:25:49.857294+00:00",
-  "total_respostas": 11,
+  "gerado_em": "2026-06-02T20:26:46.583829+00:00",
+  "total_respostas": 12,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -331,6 +331,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-06-02T20-25-39-371Z_RJ_Nova_Iguacu.json"
+    },
+    {
+      "enviado_em": "2026-06-02T20:26:33.222Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "RJ",
+        "municipio": "Belford Roxo",
+        "codigo_ibge": "3300456"
+      },
+      "respostas": {
+        "q1": 5,
+        "q2": 5,
+        "q3": 5,
+        "q4": 5,
+        "q5": 5,
+        "q6": 5,
+        "q7": 10,
+        "q8": 5,
+        "q9": 5,
+        "q10": 5,
+        "q11": 0,
+        "q12": 0
+      },
+      "pontuacao": {
+        "monitoramento": 13,
+        "emissao": 15,
+        "comunicacao": 17,
+        "preparacao": 3,
+        "total": 48,
+        "classificacao": "Capacidade limitada"
+      },
+      "observacoes": "",
+      "_arquivo": "data/respostas/2026-06-02T20-26-33-503Z_RJ_Belford_Roxo.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
