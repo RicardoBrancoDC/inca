@@ -1,0 +1,32 @@
+{
+  "enviado_em": "2026-06-02T20:25:38.644Z",
+  "tipo_ente": "Municipal",
+  "identificacao": {
+    "uf": "RJ",
+    "municipio": "Nova Iguaçu",
+    "codigo_ibge": "3303500"
+  },
+  "respostas": {
+    "q1": 10,
+    "q2": 10,
+    "q3": 5,
+    "q4": 10,
+    "q5": 10,
+    "q6": 10,
+    "q7": 10,
+    "q8": 10,
+    "q9": 10,
+    "q10": 5,
+    "q11": 5,
+    "q12": 5
+  },
+  "pontuacao": {
+    "monitoramento": 21,
+    "emissao": 30,
+    "comunicacao": 25,
+    "preparacao": 10,
+    "total": 86,
+    "classificacao": "Alta capacidade"
+  },
+  "observacoes": ""
+}
