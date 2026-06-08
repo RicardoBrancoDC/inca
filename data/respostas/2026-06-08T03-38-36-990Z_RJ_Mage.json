@@ -1,0 +1,32 @@
+{
+  "enviado_em": "2026-06-08T03:38:36.913Z",
+  "tipo_ente": "Municipal",
+  "identificacao": {
+    "uf": "RJ",
+    "municipio": "Magé",
+    "codigo_ibge": "3302502"
+  },
+  "respostas": {
+    "q1": 5,
+    "q2": 5,
+    "q3": 0,
+    "q4": 5,
+    "q5": 5,
+    "q6": 0,
+    "q7": 5,
+    "q8": 0,
+    "q9": 0,
+    "q10": 0,
+    "q11": 0,
+    "q12": 0
+  },
+  "pontuacao": {
+    "monitoramento": 8,
+    "emissao": 10,
+    "comunicacao": 4,
+    "preparacao": 0,
+    "total": 22,
+    "classificacao": "Baixa capacidade"
+  },
+  "observacoes": ""
+}
