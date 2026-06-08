@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-06-08T03:39:52.963006+00:00",
-  "total_respostas": 15,
+  "gerado_em": "2026-06-08T03:41:06.269480+00:00",
+  "total_respostas": 16,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -463,6 +463,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-06-08T03-39-43-321Z_RJ_Guapimirim.json"
+    },
+    {
+      "enviado_em": "2026-06-08T03:40:58.914Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "RJ",
+        "municipio": "Três Rios",
+        "codigo_ibge": "3306008"
+      },
+      "respostas": {
+        "q1": 5,
+        "q2": 10,
+        "q3": 10,
+        "q4": 10,
+        "q5": 5,
+        "q6": 5,
+        "q7": 10,
+        "q8": 0,
+        "q9": 5,
+        "q10": 5,
+        "q11": 5,
+        "q12": 0
+      },
+      "pontuacao": {
+        "monitoramento": 21,
+        "emissao": 20,
+        "comunicacao": 13,
+        "preparacao": 7,
+        "total": 61,
+        "classificacao": "Capacidade moderada"
+      },
+      "observacoes": "",
+      "_arquivo": "data/respostas/2026-06-08T03-40-58-987Z_RJ_Tres_Rios.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
