@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-06-08T03:41:06.269480+00:00",
-  "total_respostas": 16,
+  "gerado_em": "2026-06-08T19:36:01.642988+00:00",
+  "total_respostas": 17,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -496,6 +496,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-06-08T03-40-58-987Z_RJ_Tres_Rios.json"
+    },
+    {
+      "enviado_em": "2026-06-08T19:35:49.674Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "MG",
+        "municipio": "Juiz de Fora",
+        "codigo_ibge": "3136702"
+      },
+      "respostas": {
+        "q1": 10,
+        "q2": 10,
+        "q3": 10,
+        "q4": 10,
+        "q5": 10,
+        "q6": 10,
+        "q7": 10,
+        "q8": 5,
+        "q9": 5,
+        "q10": 10,
+        "q11": 5,
+        "q12": 5
+      },
+      "pontuacao": {
+        "monitoramento": 25,
+        "emissao": 30,
+        "comunicacao": 17,
+        "preparacao": 13,
+        "total": 85,
+        "classificacao": "Alta capacidade"
+      },
+      "observacoes": "",
+      "_arquivo": "data/respostas/2026-06-08T19-35-51-878Z_MG_Juiz_de_Fora.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
