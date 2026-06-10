@@ -1,6 +1,6 @@
 {
-  "gerado_em": "2026-06-09T15:18:19.115792+00:00",
-  "total_respostas": 18,
+  "gerado_em": "2026-06-10T00:22:54.529942+00:00",
+  "total_respostas": 19,
   "respostas": [
     {
       "enviado_em": "2026-04-27T21:25:14.601Z",
@@ -562,6 +562,39 @@
       },
       "observacoes": "",
       "_arquivo": "data/respostas/2026-06-09T15-18-06-918Z_RJ_Nova_Friburgo.json"
+    },
+    {
+      "enviado_em": "2026-06-10T00:22:44.492Z",
+      "tipo_ente": "Municipal",
+      "identificacao": {
+        "uf": "MG",
+        "municipio": "Belo Horizonte",
+        "codigo_ibge": "3106200"
+      },
+      "respostas": {
+        "q1": 10,
+        "q2": 10,
+        "q3": 10,
+        "q4": 10,
+        "q5": 10,
+        "q6": 10,
+        "q7": 10,
+        "q8": 10,
+        "q9": 10,
+        "q10": 10,
+        "q11": 10,
+        "q12": 10
+      },
+      "pontuacao": {
+        "monitoramento": 25,
+        "emissao": 30,
+        "comunicacao": 25,
+        "preparacao": 20,
+        "total": 100,
+        "classificacao": "Alta capacidade"
+      },
+      "observacoes": "Possui um sistema muito maduro de monitoramento e alerta, onde os diversos níveis de alertas estão acompanhados de ações por parte do Sistema Municipal de Proteção e Defesa Civil.",
+      "_arquivo": "data/respostas/2026-06-10T00-22-44-593Z_MG_Belo_Horizonte.json"
     },
     {
       "enviado_em": "2026-04-27T12:00:00.000Z",
