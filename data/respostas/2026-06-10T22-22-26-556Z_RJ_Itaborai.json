@@ -1,0 +1,32 @@
+{
+  "enviado_em": "2026-06-10T22:22:26.078Z",
+  "tipo_ente": "Municipal",
+  "identificacao": {
+    "uf": "RJ",
+    "municipio": "Itaboraí",
+    "codigo_ibge": "3301900"
+  },
+  "respostas": {
+    "q1": 10,
+    "q2": 5,
+    "q3": 5,
+    "q4": 5,
+    "q5": 5,
+    "q6": 5,
+    "q7": 10,
+    "q8": 0,
+    "q9": 0,
+    "q10": 5,
+    "q11": 5,
+    "q12": 5
+  },
+  "pontuacao": {
+    "monitoramento": 17,
+    "emissao": 15,
+    "comunicacao": 8,
+    "preparacao": 10,
+    "total": 50,
+    "classificacao": "Capacidade limitada"
+  },
+  "observacoes": ""
+}
