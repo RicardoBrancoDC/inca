@@ -1,0 +1,32 @@
+{
+  "enviado_em": "2026-06-11T20:36:32.617Z",
+  "tipo_ente": "Municipal",
+  "identificacao": {
+    "uf": "RJ",
+    "municipio": "São Gonçalo",
+    "codigo_ibge": "3304904"
+  },
+  "respostas": {
+    "q1": 0,
+    "q2": 0,
+    "q3": 0,
+    "q4": 5,
+    "q5": 5,
+    "q6": 0,
+    "q7": 5,
+    "q8": 5,
+    "q9": 5,
+    "q10": 5,
+    "q11": 5,
+    "q12": 5
+  },
+  "pontuacao": {
+    "monitoramento": 0,
+    "emissao": 10,
+    "comunicacao": 13,
+    "preparacao": 10,
+    "total": 33,
+    "classificacao": "Baixa capacidade"
+  },
+  "observacoes": ""
+}
