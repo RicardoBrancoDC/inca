@@ -1,0 +1,32 @@
+{
+  "enviado_em": "2026-06-15T11:01:25.308Z",
+  "tipo_ente": "Municipal",
+  "identificacao": {
+    "uf": "RJ",
+    "municipio": "Petrópolis",
+    "codigo_ibge": "3303906"
+  },
+  "respostas": {
+    "q1": 5,
+    "q2": 10,
+    "q3": 5,
+    "q4": 10,
+    "q5": 10,
+    "q6": 10,
+    "q7": 10,
+    "q8": 10,
+    "q9": 10,
+    "q10": 10,
+    "q11": 10,
+    "q12": 10
+  },
+  "pontuacao": {
+    "monitoramento": 17,
+    "emissao": 30,
+    "comunicacao": 25,
+    "preparacao": 20,
+    "total": 92,
+    "classificacao": "Alta capacidade"
+  },
+  "observacoes": ""
+}
